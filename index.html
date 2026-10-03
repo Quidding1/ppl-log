@@ -35,7 +35,9 @@ button{cursor:pointer;-webkit-user-select:none;user-select:none}
 input,textarea,select{outline:none}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 input:focus,textarea:focus,select:focus{box-shadow:0 0 0 2px var(--accent)}
-.wrap{max-width:540px;margin:0 auto;padding:10px 16px calc(var(--nav) + 130px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:540px;margin:0 auto;padding:10px 16px calc(var(--nav) + 24px + env(safe-area-inset-bottom,0px));overflow-x:clip}
+body.mini-on .wrap{padding-bottom:calc(var(--nav) + 96px + env(safe-area-inset-bottom,0px))}
+#main{will-change:transform,opacity}
 
 .top{display:flex;justify-content:space-between;align-items:center;height:36px;margin-bottom:6px}
 .top .sub{font-size:14px;color:var(--muted)}
@@ -177,7 +179,7 @@ select{width:100%;height:44px;border:0;background:var(--sunk);border-radius:12px
 .note{font-size:13px;color:var(--muted);margin:8px 0 0}
 
 /* nav */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom,0px);z-index:3;box-shadow:0 -1px 0 var(--line)}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#000;transform:translateZ(0);padding-bottom:env(safe-area-inset-bottom,0px);z-index:3;box-shadow:0 -1px 0 var(--line)}
 .tabsin{max-width:540px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav);position:relative}
 .navind{position:absolute;top:0;left:0;width:25%;height:3px;display:flex;justify-content:center;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
 .navind::after{content:"";width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
@@ -196,6 +198,46 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);-webk
 .tprog i{display:block;height:100%;background:var(--accent);width:0}
 .timer.over .tclock{color:var(--accent)}
 
+/* now-playing bar */
+.np{position:fixed;left:10px;right:10px;bottom:calc(var(--nav) + 8px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;background:var(--sunk);border:1px solid #2C2C2E;border-radius:16px;z-index:2;transform:translateY(calc(100% + 80px));transition:transform .32s cubic-bezier(.2,.8,.2,1);overflow:hidden;cursor:pointer}
+.np.on{transform:translateZ(0)}
+.np-in{display:flex;align-items:center;gap:12px;padding:10px 10px 10px 14px;min-height:58px}
+.mdot{width:9px;height:9px;border-radius:50%;flex:none}
+.mtext{flex:1;min-width:0;display:flex;flex-direction:column}
+.mtext b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtext span{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtime{font-family:var(--display);font-weight:700;font-size:26px;font-variant-numeric:tabular-nums}
+.mtime.over{color:var(--ok)}
+.mbtn{height:36px;border:0;border-radius:10px;background:#2C2C2E;color:var(--ink);font-weight:600;padding:0 12px;font-size:14px;flex:none}
+.mprog{height:3px}
+.mprog i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+/* fullscreen focus */
+.focus{position:fixed;inset:0;background:#000;z-index:4;transform:translateY(100%);transition:transform .34s cubic-bezier(.2,.8,.2,1),visibility 0s .34s;visibility:hidden;overflow-y:auto;overscroll-behavior:contain}
+.focus.on{transform:none;visibility:visible;transition:transform .34s cubic-bezier(.2,.8,.2,1)}
+.focusin{max-width:540px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:calc(10px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px))}
+.fhead{display:flex;justify-content:space-between;align-items:center;min-height:48px}
+.fclose{width:44px;height:44px;border:0;border-radius:50%;background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center}
+.fclose svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fhead .clock{margin:0}
+.fbody{flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;padding:20px 0}
+.flabel{font-size:15px;color:var(--muted);margin:4px 0}
+.fname{font-size:30px;font-weight:600;line-height:1.15;margin:6px 0}
+.fhuge{font-family:var(--display);font-weight:700;font-size:min(36vw,160px);line-height:1;font-variant-numeric:tabular-nums;margin:8px 0}
+.fhuge.over{color:var(--ok)}
+.fbar{height:6px;background:var(--surface);border-radius:3px;overflow:hidden;margin:14px 0 10px}
+.fbar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.fins{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:22px 0 6px;text-align:left}
+.fins input{width:100%;height:76px;border:0;border-radius:18px;background:var(--surface);text-align:center;font-family:var(--display);font-weight:700;font-size:42px}
+.fins input::placeholder{color:var(--faint)}
+.fnav{display:flex;justify-content:space-between;margin-top:6px}
+.fbtns{display:grid;gap:10px}
+.row3b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.go{height:62px;border:0;border-radius:18px;background:var(--ok);color:#000;font-weight:700;font-size:18px}
+.go.accent{background:var(--accent);color:#fff}
+.srow.next{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.hacts{display:flex;gap:8px;margin-top:10px}
+.hacts .btn{height:36px;font-size:14px;flex:1}
+.tact{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit;margin-left:10px;padding:0}
 /* sheet */
 .sheet{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:flex-end;justify-content:center;z-index:5}
 .sheet.on{display:flex}
@@ -216,7 +258,7 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);-webk
 .egrid input,.egrid select{width:100%;height:38px;border:0;background:var(--sunk);border-radius:8px;padding:0 8px;margin:3px 0 0;font-size:15px;background-position:calc(100% - 16px) 16px,calc(100% - 11px) 16px}
 .eacts{display:flex;justify-content:space-between;align-items:center}
 
-.toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:#000;padding:10px 18px;border-radius:999px;font-size:15px;font-weight:500;display:none;z-index:6;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.toast{pointer-events:auto;position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:#000;padding:10px 18px;border-radius:999px;font-size:15px;font-weight:500;display:none;z-index:6;max-width:90vw;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.2)}
 .toast.on{display:block}
 .toast.pr{background:linear-gradient(90deg,var(--push),var(--pull));color:#1C1E21}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -228,16 +270,11 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(0,0,0,.92);-webk
   <main id="main"></main>
 </div>
 
-<div class="timer" id="timer" role="timer">
-  <div class="tin">
-    <div class="tclock" id="tclock">1:30</div>
-    <div class="tlabel" id="tlabel">Rest</div>
-    <button class="tbtn" data-t="-15">−15</button>
-    <button class="tbtn" data-t="15">+15</button>
-    <button class="tbtn" data-t="stop">Skip</button>
-  </div>
-  <div class="tprog"><i id="tprog"></i></div>
+<div class="np" id="mini" role="button" tabindex="0" aria-label="Open current activity">
+  <div class="np-in"><span class="mdot" id="mdot"></span><div class="mtext"><b id="mtitle"></b><span id="msub"></span></div><span class="mtime" id="mtime"></span><button class="mbtn" id="mbtn"></button></div>
+  <div class="mprog"><i id="mprog"></i></div>
 </div>
+<div class="focus" id="focus" role="dialog" aria-modal="true" aria-label="Current activity"><div class="focusin" id="focusBody"></div></div>
 
 <nav class="tabs" aria-label="Main">
   <div class="tabsin"><span class="navind" id="navind"></span>
@@ -456,6 +493,7 @@ function tipsHTML(){
     <li>Pick a day at the top. The app opens on the next day in your rotation.</li>
     <li>Type the kg and reps you did. <b>Previous</b> shows last time; tap it to copy.</li>
     <li>Tap the circle when a set is done. A rest timer starts at the bottom.</li>
+    <li>The bar above the tabs shows what's next or your rest. Tap it for full screen.</li>
     <li>Tap <b>Finish</b> when you're done. Swipe left or right to switch tabs.</li></ol>
     <button class="mini" data-act="tipsok">Got it</button></div>`;
 }
@@ -464,6 +502,7 @@ function renderLog(){
   const day = state.day, plan = state.plan[day], d = draftFor(day);
   let total = 0, done = 0;
   plan.ex.forEach(e => d.ex[e.id].forEach(s => { total++; if(s.d) done++; }));
+  const nx = nextSet();
   let h = segHTML();
   if(!state.tipsSeen) h += tipsHTML();
   h += `<h1>${esc(plan.name)}</h1><p class="lede">${day === state.next ? "Up next. " : ""}${lastDoneText(day)}</p>`;
@@ -479,8 +518,8 @@ function renderLog(){
       <div class="exmeta"><span>${target}</span>${ready ? '<span class="pill">Ready: add 1–2 kg</span>' : ""}</div>
       <div class="sgrid shead"><span>Set</span><span>Previous</span><span>${isBW(e) ? "+kg" : "kg"}</span><span>${e.unit === "rounds" ? "Rounds" : "Reps"}</span><span></span></div>`;
     sets.forEach((s, i) => {
-      const p = last ? last[i] : null;
-      h += `<div class="sgrid srow${s.d ? " done" : ""}" data-i="${i}">
+      const p = last ? last[i] : null, isNext = nx && nx.e.id === e.id && nx.i === i && (d.start || done);
+      h += `<div class="sgrid srow${s.d ? " done" : ""}${isNext ? " next" : ""}" data-i="${i}">
         <span class="setno">${i+1}</span>
         <button class="prev" data-act="copyprev" ${p ? "" : "disabled"} aria-label="Copy previous">${esc(prevText(e, p))}</button>
         <input class="sin" inputmode="decimal" data-k="w" value="${esc(s.w)}" placeholder="${isBW(e) ? "0" : ""}" aria-label="Set ${i+1} weight">
@@ -534,34 +573,35 @@ function renderCardio(){
   slideSeg();
   updateCardio();
 }
-function updateCardio(){
-  const c = state.draft.cardio; if(!c || view !== "log" || state.day !== "cardio" || !$("cTime")) return;
+function setTxt(id, t){ const el = $(id); if(el && el.textContent !== t) el.textContent = t; }
+function cardioLive(){
+  const c = state.draft.cardio; if(!c) return null;
   const ms = cElapsed(c);
   if(c.mode === "intervals"){
     const s = intervalState(c);
-    if(s.done){
-      $("cTime").textContent = fmtDur(s.total * 1000); $("cPhase").textContent = "All " + c.rounds + " rounds done"; $("cPhase").className = "phase"; $("cBar").style.width = "100%";
-      if(c.runStart){ c.elapsed = s.total * 1000; c.runStart = null; save(); signal("finish"); wake(false); lastPhase = null; renderCardio(); }
-      return;
-    }
-    $("cTime").textContent = fmtDur(s.left * 1000);
-    $("cPhase").textContent = (s.work ? "Work" : "Rest") + ", round " + s.round + " of " + c.rounds + ", total " + fmtDur(ms);
-    $("cPhase").className = "phase" + (s.work && c.runStart ? " work" : "");
-    $("cBar").style.width = ((1 - s.left / s.len) * 100) + "%";
-    if(c.runStart){
-      const key = s.round + (s.work ? "w" : "r");
-      if(lastPhase !== null && key !== lastPhase) signal(s.work ? "work" : "rest");
-      lastPhase = key;
-      if(s.left <= 3 && s.left >= 1 && lastTick !== s.t){ lastTick = s.t; signal("tick"); }
-    }
-  } else {
-    $("cTime").textContent = fmtDur(ms);
-    $("cPhase").textContent = c.runStart ? "Running" : ms ? "Paused" : "";
-    $("cPhase").className = "phase";
-    $("cBar").style.width = ((ms / 60000) % 1 * 100) + "%";
+    if(s.done) return {time:fmtDur(s.total*1000), phase:"All " + c.rounds + " rounds done", pct:100, work:false, s, ms};
+    return {time:fmtDur(s.left*1000), phase:(s.work ? "Work" : "Rest") + ", round " + s.round + " of " + c.rounds, pct:(1 - s.left/s.len)*100, work:s.work && !!c.runStart, s, ms};
+  }
+  return {time:fmtDur(ms), phase:c.runStart ? "Running" : ms ? "Paused" : "Ready", pct:(ms/60000)%1*100, work:false, ms};
+}
+function updateCardio(){
+  const c = state.draft.cardio; if(!c) return;
+  const L = cardioLive();
+  if(c.mode === "intervals" && c.runStart){
+    const s = L.s;
+    if(s.done){ c.elapsed = s.total*1000; c.runStart = null; save(); signal("finish"); wake(false); lastPhase = null; if(view === "log" && state.day === "cardio") renderCardio(); if(focusOpen) renderFocus(); return; }
+    const key = s.round + (s.work ? "w" : "r");
+    if(lastPhase !== null && key !== lastPhase) signal(s.work ? "work" : "rest");
+    lastPhase = key;
+    if(s.left <= 3 && s.left >= 1 && lastTick !== s.t){ lastTick = s.t; signal("tick"); }
+  }
+  for(const pre of ["c","f"]){
+    if(!$(pre + "Time")) continue;
+    setTxt(pre + "Time", L.time); setTxt(pre + "Phase", L.phase + (c.mode === "intervals" && L.ms ? ", total " + fmtDur(L.ms) : ""));
+    $(pre + "Phase").className = (pre === "c" ? "phase" : "flabel") + (L.work ? " work" : "");
+    $(pre + "Bar").style.width = L.pct + "%";
   }
 }
-setInterval(updateCardio, 250);
 
 function cardioAction(act, val){
   const c = cdraft();
@@ -579,17 +619,19 @@ function cardioAction(act, val){
         }
         c.runStart = Date.now(); wake(true);
       }
-      save(); renderCardio(); renderTop(); break;
-    case "creset": if(confirm("Reset the timer to zero?")){ c.elapsed = 0; c.runStart = null; lastPhase = null; save(); wake(false); renderCardio(); renderTop(); } break;
+      save(); if(view === "log" && state.day === "cardio") renderCardio(); if(focusOpen) renderFocus(); renderTop(); updateLive(); break;
+    case "creset": if(confirm("Reset the timer to zero?")){ c.elapsed = 0; c.runStart = null; lastPhase = null; save(); wake(false); if(view === "log") renderCardio(); if(focusOpen) renderFocus(); renderTop(); updateLive(); } break;
     case "csave": {
       const mins = num(c.manual);
       const dur = mins ? mins * 60000 : cElapsed(c);
       if(dur < 60000){ toast("Log at least 1 minute first"); return; }
       state.sessions.push({id:Date.now().toString(36), day:"cardio", date:new Date().toISOString(), dur, note:(c.note || "").trim(), ex:{},
         cardio:{type:c.type, dist:num(c.dist), level:num(c.level), effort:c.effort || null, intervals: c.mode === "intervals" && !mins ? {work:c.work, rest:c.rest, rounds:c.rounds} : null}});
-      const keep = {type:c.type, mode:c.mode, work:c.work, rest:c.rest, rounds:c.rounds};
+      const keep = {type:c.type, mode:c.mode, work:c.work, rest:c.rest, rounds:c.rounds}, backup = clone(c), sid = state.sessions[state.sessions.length-1].id;
       delete state.draft.cardio; Object.assign(cdraft(), keep);
-      wake(false); stopTimer(); save(); goView("progress"); toast(actName(c.type) + " saved, " + Math.round(dur/60000) + " min");
+      wake(false); stopTimer(); closeFocus(); save(); goView("progress");
+      toast(actName(c.type) + " saved, " + Math.round(dur/60000) + " min", false, {label:"Undo", fn:() => {
+        state.sessions = state.sessions.filter(x => x.id !== sid); state.draft.cardio = backup; state.day = "cardio"; save(); view = "progress"; goView("log"); }});
     }
   }
 }
@@ -691,7 +733,7 @@ function renderHistory(){
       if(c.intervals) h += `<li>Intervals<span>${c.intervals.rounds} × ${c.intervals.work}s on, ${c.intervals.rest}s off</span></li>`;
       if(c.effort) h += `<li>Effort<span>${c.effort[0].toUpperCase() + c.effort.slice(1)}</span></li>`;
     } else for(const [id, sets] of Object.entries(s.ex || {})){ const e = exById(id); h += `<li>${esc(e.n)}<span>${esc(setsText(e, sets))}</span></li>`; }
-    h += `</ul><button class="textlink" data-act="delsess" data-id="${s.id}">Delete</button></article>`;
+    h += `</ul><div class="hacts"><button class="btn" data-act="reopen" data-id="${s.id}">Reopen to edit</button><button class="btn danger" data-act="delsess" data-id="${s.id}">Delete</button></div></article>`;
   });
   $("main").innerHTML = h + "</div>";
 }
@@ -752,10 +794,10 @@ function render(){
   moveNav();
   if(view !== "progress") killCharts();
   ({log:renderLog, progress:renderProgress, history:renderHistory, settings:renderSettings})[view]();
-  renderTop();
+  renderTop(); updateLive();
 }
 function goView(v){
-  if(v === view) return;
+  if(v === view){ render(); return; }
   const dir = VIEWS.indexOf(v) > VIEWS.indexOf(view) ? 1 : -1;
   view = v; moveNav();
   document.querySelectorAll(".tab").forEach(t => t.dataset.view === view ? t.setAttribute("aria-current","page") : t.removeAttribute("aria-current"));
@@ -766,7 +808,7 @@ document.querySelectorAll(".tab").forEach(t => t.onclick = () => goView(t.datase
 let sx = null, sy = null, st0 = 0;
 document.addEventListener("touchstart", ev => {
   const t = ev.target;
-  if(ev.touches.length !== 1 || $("sheet").classList.contains("on") || t.closest("input,textarea,select,canvas,.chips,.timer")){ sx = null; return; }
+  if(ev.touches.length !== 1 || focusOpen || $("sheet").classList.contains("on") || t.closest("input,textarea,select,canvas,.chips,.np,.focus")){ sx = null; return; }
   sx = ev.touches[0].clientX; sy = ev.touches[0].clientY; st0 = Date.now();
 }, {passive:true});
 document.addEventListener("touchend", ev => {
@@ -795,7 +837,7 @@ $("main").addEventListener("click", async ev => {
       if(b.dataset.day === state.day) break;
       const from = TABS.indexOf(state.day), to = TABS.indexOf(b.dataset.day);
       segFrom = from; state.day = b.dataset.day; save();
-      swapMain(to > from ? 1 : -1, () => { renderLog(); renderTop(); }, true); break;
+      swapMain(to > from ? 1 : -1, () => { renderLog(); renderTop(); updateLive(); }, true); break;
     }
     case "copyprev": { const i = +b.closest(".srow").dataset.i; if(fillPrev(exId, i)){ save(); const y = window.scrollY; renderLog(); window.scrollTo(0, y); } break; }
     case "tipsok": state.tipsSeen = true; save(); renderLog(); break;
@@ -803,9 +845,15 @@ $("main").addEventListener("click", async ev => {
     case "delset": { d.ex[exId].pop(); save(); const y = window.scrollY; renderLog(); window.scrollTo(0, y); break; }
     case "tick": tick(b, exId); break;
     case "plates": openPlates(exId); break;
-    case "discard": if(confirm("Discard this workout? Nothing gets saved.")){ delete state.draft[state.day]; save(); wake(false); stopTimer(); renderLog(); renderTop(); } break;
+    case "discard": if(confirm("Discard this workout? Nothing gets saved.")){ delete state.draft[state.day]; save(); wake(false); stopTimer(); renderLog(); renderTop(); updateLive(); } break;
     case "finish": finish(); break;
-    case "delsess": if(confirm("Delete this session from your history?")){ state.sessions = state.sessions.filter(s => s.id !== b.dataset.id); save(); renderHistory(); toast("Deleted"); } break;
+    case "delsess": {
+      const i = state.sessions.findIndex(s => s.id === b.dataset.id); if(i < 0) break;
+      const [gone] = state.sessions.splice(i, 1); save(); renderHistory();
+      toast("Workout deleted", false, {label:"Undo", fn:() => { state.sessions.splice(i, 0, gone); save(); if(view === "history") renderHistory(); }});
+      break;
+    }
+    case "reopen": reopen(b.dataset.id); break;
     case "toggle": await toggleSetting(b.dataset.key); break;
     case "chip": { const k = b.dataset.key, v = b.dataset.val; state.settings[k] = isNaN(+v) ? v : +v; save(); if(k === "theme") applyTheme(); renderSettings(); break; }
     case "testsound": {
@@ -838,27 +886,49 @@ function fillPrev(exId, i){
   if(s.r === "") s.r = String(p.r);
   return true;
 }
+function completeSet(exId, i){
+  const s = state.draft[state.day].ex[exId][i], e = exById(exId);
+  s.d = true; ensureStart(); buzz(30); save();
+  const w = num(s.w) || 0, r = parseInt(s.r), best = bestFor(exId);
+  if(best && (w ? e1rm(w, r) : r) > best.score + .01) toast("New best on " + e.n + ": " + (w ? w + " kg × " + r : r + " " + (e.unit || "reps")), true);
+  if(state.settings.autoRest && nextSet()) startTimer(); else updateLive();
+}
+function reopen(id){
+  const sess = state.sessions.find(x => x.id === id); if(!sess) return;
+  const k = sess.day;
+  const busy = k === "cardio" ? (state.draft.cardio && (state.draft.cardio.runStart || state.draft.cardio.elapsed)) : (state.draft[k] && state.draft[k].start);
+  if(busy && !confirm("You already have a " + dayName(k) + " session in progress. Replace it?")) return;
+  if(k === "cardio"){
+    const c = sess.cardio || {};
+    state.draft.cardio = {type:c.type || "bike", mode:"free", elapsed:sess.dur || 0, runStart:null, manual:"", dist:c.dist ?? "", level:c.level ?? "", effort:c.effort || "", note:sess.note || "", work:30, rest:60, rounds:8};
+  } else {
+    const ex = {};
+    for(const [eid, sets] of Object.entries(sess.ex || {})) ex[eid] = sets.map(x => ({w:x.w == null ? "" : String(x.w), r:String(x.r), d:true}));
+    state.draft[k] = {start:Date.now() - (sess.dur || 0), ex, note:sess.note || ""};
+  }
+  state.sessions = state.sessions.filter(x => x.id !== id); state.day = k; save();
+  goView("log"); toast("Reopened. Edit it, then tap Finish again.");
+}
 function tick(btn, exId){
   const i = +btn.closest(".srow").dataset.i, s = state.draft[state.day].ex[exId][i], e = exById(exId);
   if(!s.d){
     if(s.r === "") fillPrev(exId, i);
     if(!(parseInt(s.r) > 0)){ toast("Type your reps first, then tap the circle"); const r = btn.closest(".srow").querySelector('[data-k="r"]'); r && r.focus(); return; }
-    s.d = true; ensureStart(); buzz(30);
-    const w = num(s.w) || 0, r = parseInt(s.r), best = bestFor(exId);
-    if(best && (w ? e1rm(w, r) : r) > best.score + .01) toast("New best on " + e.n + ": " + (w ? w + " kg × " + r : r + " " + (e.unit || "reps")), true);
-    if(state.settings.autoRest) startTimer();
-  } else s.d = false;
-  save(); const y = window.scrollY; renderLog(); window.scrollTo(0, y);
+    completeSet(exId, i);
+  } else { s.d = false; save(); updateLive(); }
+  const y = window.scrollY; renderLog(); window.scrollTo(0, y);
 }
 function finish(){
   const day = state.day, d = draftFor(day), ex = {};
   for(const [id, sets] of Object.entries(d.ex)){ const g = sets.map(s => ({w:num(s.w), r:parseInt(s.r)})).filter(s => s.r > 0); if(g.length) ex[id] = g; }
   if(!Object.keys(ex).length){ toast("Log at least one set first"); return; }
   state.sessions.push({id:Date.now().toString(36), day, date:new Date().toISOString(), dur:d.start ? Date.now() - d.start : null, note:(d.note || "").trim(), ex});
+  const backup = clone(d), prevNext = state.next, sid = state.sessions[state.sessions.length-1].id;
   delete state.draft[day];
   state.next = state.day = ORDER[(ORDER.indexOf(day) + 1) % 3];
-  save(); stopTimer(); wake(false); goView("progress");
-  toast(dayName(day) + " saved");
+  save(); stopTimer(); wake(false); closeFocus(); goView("progress");
+  toast(dayName(day) + " saved", false, {label:"Undo", fn:() => {
+    state.sessions = state.sessions.filter(x => x.id !== sid); state.draft[day] = backup; state.day = day; state.next = prevNext; save(); view = "progress"; goView("log"); }});
 }
 async function toggleSetting(key){
   const st = state.settings;
@@ -891,28 +961,171 @@ $("importFile").onchange = async ev => {
 };
 
 /* ================= rest timer ================= */
-let tEnd = 0, tLen = 90, tInt = null, alerted = false, lastCount = -1;
-function startTimer(){ tLen = state.settings.rest; tEnd = Date.now() + tLen*1000; alerted = false; lastCount = -1; $("timer").classList.add("on"); tickTimer(); clearInterval(tInt); tInt = setInterval(tickTimer, 200); }
-function stopTimer(){ clearInterval(tInt); tInt = null; $("timer").classList.remove("on","over"); }
-function tickTimer(){
-  const ms = tEnd - Date.now(), left = Math.ceil(ms / 1000), a = Math.abs(left);
-  $("tclock").textContent = (ms < 0 ? "+" : "") + Math.floor(a/60) + ":" + String(a%60).padStart(2,"0");
-  $("tlabel").textContent = ms > 0 ? "Rest" : "Go";
-  $("tprog").style.width = Math.min(100, Math.max(0, (1 - ms/(tLen*1000)) * 100)) + "%";
-  $("timer").classList.toggle("over", ms <= 0);
-  if(ms > 0 && left <= 3 && left !== lastCount && !document.hidden){ lastCount = left; signal("tick"); }
-  if(ms <= 0 && !alerted){ alerted = true; signal("done"); }
+let tEnd = 0, tLen = 90, tInt = null, alerted = false, lastCount = -1, endT = null;
+function startTimer(){ tLen = state.settings.rest; tEnd = Date.now() + tLen*1000; alerted = false; lastCount = -1; clearTimeout(endT); clearInterval(tInt); tInt = setInterval(tickTimer, 200); tickTimer(); updateLive(); if(focusOpen) renderFocus(); }
+function stopTimer(){
+  const was = !!tInt; clearInterval(tInt); tInt = null; clearTimeout(endT);
+  updateLive(); if(was && focusOpen) renderFocus();
 }
-document.querySelectorAll("[data-t]").forEach(b => b.onclick = () => {
-  const t = b.dataset.t; if(t === "stop") return stopTimer();
-  tEnd += (+t) * 1000; tLen = Math.max(tLen, Math.ceil((tEnd - Date.now())/1000)); if(tEnd > Date.now()){ alerted = false; lastCount = -1; } tickTimer();
-});
+function adjustRest(sec){ if(!tInt) return; tEnd += sec*1000; tLen = Math.max(tLen, Math.ceil((tEnd - Date.now())/1000)); if(tEnd > Date.now()){ alerted = false; lastCount = -1; clearTimeout(endT); } tickTimer(); }
+function tickTimer(){
+  const ms = tEnd - Date.now(), left = Math.ceil(ms/1000);
+  if(ms > 0 && left <= 3 && left !== lastCount && !document.hidden){ lastCount = left; signal("tick"); }
+  if(ms <= 0 && !alerted){ alerted = true; signal("done"); endT = setTimeout(restOver, 1600); }
+  updateLive();
+}
+function restOver(){
+  if(!tInt || tEnd > Date.now()) return;
+  stopTimer(); queueNext();
+}
+function queueNext(){
+  if(view === "log" && state.day !== "cardio" && !focusOpen){
+    const y = window.scrollY; renderLog(); window.scrollTo(0, y);
+    const row = document.querySelector(".srow.next");
+    if(row) row.scrollIntoView({behavior:"smooth", block:"center"});
+  }
+}
+const fmtClock = ms => { const a = Math.abs(Math.ceil(ms/1000)); return (ms < 0 ? "+" : "") + Math.floor(a/60) + ":" + String(a%60).padStart(2,"0"); };
 document.addEventListener("visibilitychange", () => {
   if(document.hidden) return;
-  if(tInt) tickTimer();
+  if(tInt){ tickTimer(); if(tEnd + 1600 < Date.now()) restOver(); }
   const d = state.draft[state.day], c = state.draft.cardio;
   if((d && d.start) || (c && c.runStart)) wake(true);
 });
+
+/* ================= live bar + fullscreen ================= */
+function nextSet(day){
+  day = day || state.day; if(day === "cardio") return null;
+  const d = state.draft[day]; if(!d || !d.ex) return null;
+  for(const e of state.plan[day].ex){ const sets = d.ex[e.id] || []; for(let i = 0; i < sets.length; i++) if(!sets[i].d) return {e, i, n:sets.length}; }
+  return null;
+}
+const strengthActive = () => state.day !== "cardio" && state.draft[state.day] && state.draft[state.day].start;
+const cardioActive = () => { const c = state.draft.cardio; return state.day === "cardio" && c && (c.runStart || c.elapsed); };
+function liveMode(){ return tInt ? "rest" : cardioActive() ? "cardio" : strengthActive() ? "set" : null; }
+function updateLive(){
+  const mode = liveMode(), mini = $("mini"), btn = $("mbtn");
+  const on = !!mode && !focusOpen;
+  mini.classList.toggle("on", on); document.body.classList.toggle("mini-on", !!mode);
+  mini.dataset.mode = mode || "";
+  if(mode === "rest"){
+    const ms = tEnd - Date.now(), n = nextSet();
+    $("mdot").style.background = "var(--accent)";
+    setTxt("mtitle", ms > 0 ? "Resting" : "Rest over, go");
+    setTxt("msub", n ? "Next: " + n.e.n + ", set " + (n.i+1) : "All sets done");
+    setTxt("mtime", fmtClock(ms)); $("mtime").classList.toggle("over", ms <= 0);
+    $("mprog").style.width = Math.min(100, Math.max(0, (1 - ms/(tLen*1000))*100)) + "%";
+    btn.style.display = ""; setTxt("mbtn", "Skip");
+  } else if(mode === "set"){
+    const n = nextSet(), d = state.draft[state.day];
+    $("mdot").style.background = "var(--" + state.day + ")";
+    if(n){ const p = (lastFor(n.e.id) || [])[n.i]; setTxt("mtitle", n.e.n); setTxt("msub", "Set " + (n.i+1) + " of " + n.n + (p ? ", last " + prevText(n.e, p) : "")); }
+    else { setTxt("mtitle", "All sets done"); setTxt("msub", "Tap to finish your workout"); }
+    setTxt("mtime", fmtDur(Date.now() - d.start)); $("mtime").classList.remove("over");
+    $("mprog").style.width = "0%"; btn.style.display = "none";
+  } else if(mode === "cardio"){
+    const c = state.draft.cardio, L = cardioLive();
+    $("mdot").style.background = "var(--cardio)";
+    setTxt("mtitle", actName(c.type)); setTxt("msub", L.phase); setTxt("mtime", L.time); $("mtime").classList.remove("over");
+    $("mprog").style.width = (c.mode === "intervals" ? L.pct : 0) + "%";
+    btn.style.display = ""; setTxt("mbtn", c.runStart ? "Pause" : "Start");
+  }
+  if(focusOpen) focusLive();
+}
+setInterval(() => { if(!tInt) updateLive(); updateCardio(); }, 250);
+$("mbtn").addEventListener("click", ev => {
+  ev.stopPropagation();
+  const m = $("mini").dataset.mode;
+  if(m === "rest"){ stopTimer(); queueNext(); }
+  else if(m === "cardio") cardioAction("cgo");
+});
+$("mini").addEventListener("click", openFocus);
+$("mini").addEventListener("keydown", ev => { if(ev.key === "Enter" || ev.key === " ") openFocus(); });
+
+let focusOpen = false, fCur = null;
+function openFocus(){ if(!liveMode()) return; fCur = null; focusOpen = true; renderFocus(); $("focus").classList.add("on"); updateLive(); }
+function closeFocus(){
+  if(!focusOpen) return; focusOpen = false; $("focus").classList.remove("on"); updateLive();
+  if(view === "log"){ const y = window.scrollY; renderLog(); window.scrollTo(0, y); }
+}
+const chevron = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+function renderFocus(){
+  const mode = liveMode(); if(!mode){ closeFocus(); return; }
+  const day = state.day;
+  let h = `<div class="fhead"><button class="fclose" data-f="close" aria-label="Close">${chevron}</button><span class="clock" id="fClock"></span></div><div class="fbody">`;
+  if(mode === "rest"){
+    const n = nextSet(), p = n ? (lastFor(n.e.id) || [])[n.i] : null;
+    h += `<div class="flabel" id="fRestLabel">Rest</div><div class="fhuge" id="fRest"></div><div class="fbar"><i id="fRestBar"></i></div>
+      <div class="flabel">${n ? "Up next: " + esc(n.e.n) + ", set " + (n.i+1) + (p ? ". Last time " + esc(prevText(n.e, p)) : "") : "That was your last set"}</div></div>
+      <div class="fbtns"><div class="row3b"><button class="secondary" data-f="minus">−15 s</button><button class="secondary" data-f="plus">+15 s</button><button class="secondary" data-f="skip">Skip</button></div></div>`;
+  } else if(mode === "cardio"){
+    const c = state.draft.cardio;
+    h += `<div class="flabel">${esc(actName(c.type))}${c.mode === "intervals" ? ", intervals" : ""}</div><div class="fhuge" id="fTime"></div><div class="fbar"><i id="fBar"></i></div><div class="flabel" id="fPhase"></div></div>
+      <div class="fbtns"><button class="go${c.runStart ? "" : " accent"}" data-f="cgo">${c.runStart ? "Pause" : "Resume"}</button><button class="secondary" data-f="csave">Save cardio</button></div>`;
+  } else {
+    const d = draftFor(day), cur = fCur && d.ex[fCur.id] && d.ex[fCur.id][fCur.i] ? {e:exById(fCur.id), i:fCur.i, n:d.ex[fCur.id].length} : nextSet();
+    if(!cur){
+      let total = 0; Object.values(d.ex).forEach(x => total += x.filter(s => s.d).length);
+      h += `<div class="fname">All sets done</div><div class="flabel">${total} sets in ${fmtDur(Date.now() - d.start)}</div></div>
+        <div class="fbtns"><button class="go" data-f="finish">Finish ${esc(dayName(day).toLowerCase())} workout</button><button class="secondary" data-f="close">Back to list</button></div>`;
+    } else {
+      fCur = {id:cur.e.id, i:cur.i};
+      const s = d.ex[cur.e.id][cur.i], p = (lastFor(cur.e.id) || [])[cur.i], e = cur.e;
+      const target = e.max ? "As many " + (e.unit || "reps") + " as you can" : e.lo + "–" + e.hi + " reps";
+      h += `<div class="flabel">Set ${cur.i+1} of ${cur.n}</div><div class="fname">${esc(e.n)}</div><div class="flabel">${target}${p ? ". Last time " + esc(prevText(e, p)) : ""}</div>
+        <div class="fins"><label><span class="lab">${isBW(e) ? "Extra kg" : "kg"}</span><input inputmode="decimal" data-fk="w" value="${esc(s.w)}" placeholder="${p && p.w ? p.w : isBW(e) ? "0" : "–"}"></label>
+        <label><span class="lab">${e.unit === "rounds" ? "Rounds" : "Reps"}</span><input inputmode="numeric" data-fk="r" value="${esc(s.r)}" placeholder="${p ? p.r : "–"}"></label></div>
+        <div class="fnav"><button class="ghost" data-f="prev">‹ Previous set</button><button class="ghost" data-f="next">Next set ›</button></div></div>
+        <div class="fbtns"><button class="go" data-f="${s.d ? "undo" : "done"}">${s.d ? "Done. Tap to undo" : "Complete set"}</button></div>`;
+    }
+  }
+  $("focusBody").innerHTML = h;
+  focusLive(); updateCardio();
+}
+function focusLive(){
+  const mode = liveMode();
+  const d = state.draft[state.day], c = state.draft.cardio;
+  setTxt("fClock", mode === "cardio" ? "" : d && d.start ? dayName(state.day) + " " + fmtDur(Date.now() - d.start) : "");
+  if(mode === "rest" && $("fRest")){
+    const ms = tEnd - Date.now();
+    setTxt("fRest", fmtClock(ms)); $("fRest").classList.toggle("over", ms <= 0);
+    setTxt("fRestLabel", ms > 0 ? "Rest" : "Go");
+    $("fRestBar").style.width = Math.min(100, Math.max(0, (1 - ms/(tLen*1000))*100)) + "%";
+  } else if(mode !== "rest" && $("fRest")) renderFocus();
+}
+function focusSets(){ const d = draftFor(state.day), list = []; state.plan[state.day].ex.forEach(e => (d.ex[e.id] || []).forEach((s, i) => list.push({id:e.id, i}))); return list; }
+$("focusBody").addEventListener("input", ev => {
+  const k = ev.target.dataset.fk; if(!k || !fCur) return;
+  draftFor(state.day).ex[fCur.id][fCur.i][k] = ev.target.value; save();
+});
+$("focusBody").addEventListener("click", ev => {
+  const b = ev.target.closest("[data-f]"); if(!b) return;
+  const f = b.dataset.f;
+  switch(f){
+    case "close": closeFocus(); break;
+    case "minus": adjustRest(-15); break;
+    case "plus": adjustRest(15); break;
+    case "skip": stopTimer(); break;
+    case "cgo": cardioAction("cgo"); break;
+    case "csave": cardioAction("csave"); break;
+    case "finish": finish(); break;
+    case "prev": case "next": {
+      const list = focusSets(), at = list.findIndex(x => x.id === fCur.id && x.i === fCur.i), to = at + (f === "next" ? 1 : -1);
+      if(to >= 0 && to < list.length){ fCur = list[to]; renderFocus(); } break;
+    }
+    case "done": {
+      const s = draftFor(state.day).ex[fCur.id][fCur.i];
+      if(s.r === "") fillPrev(fCur.id, fCur.i);
+      if(!(parseInt(s.r) > 0)){ toast("Type your reps first"); const r = $("focusBody").querySelector('[data-fk="r"]'); r && r.focus(); break; }
+      completeSet(fCur.id, fCur.i); fCur = null; renderFocus(); break;
+    }
+    case "undo": draftFor(state.day).ex[fCur.id][fCur.i].d = false; save(); renderFocus(); updateLive(); break;
+  }
+});
+// swipe down to close fullscreen
+let fy = null;
+$("focus").addEventListener("touchstart", ev => { fy = $("focus").scrollTop <= 0 && !ev.target.closest("input") ? ev.touches[0].clientY : null; }, {passive:true});
+$("focus").addEventListener("touchend", ev => { if(fy !== null && ev.changedTouches[0].clientY - fy > 110) closeFocus(); fy = null; }, {passive:true});
 
 /* ================= wake lock ================= */
 let wl = null;
@@ -1001,7 +1214,12 @@ $("sheetBody").addEventListener("click", ev => {
 
 /* ================= toast ================= */
 let toastT;
-function toast(msg, pr){ const t = $("toast"); t.textContent = msg; t.classList.toggle("pr", !!pr); t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), pr ? 3200 : 2600); }
+function toast(msg, pr, action){
+  const t = $("toast"); t.textContent = msg;
+  if(action){ const b = document.createElement("button"); b.className = "tact"; b.textContent = action.label; b.onclick = () => { t.classList.remove("on"); action.fn(); }; t.appendChild(b); }
+  t.classList.toggle("pr", !!pr); t.classList.add("on"); clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove("on"), action ? 6000 : pr ? 3200 : 2600);
+}
 
 /* ================= boot ================= */
 applyTheme();
