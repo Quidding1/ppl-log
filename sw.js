@@ -1,5 +1,5 @@
-const CACHE = "ppl-log-v1";
-const FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png"];
+const CACHE = "ppl-log-v2";
+const FILES = ["./", "./index.html", "./manifest.json", "./chart.umd.js", "./icon-192.png", "./icon-512.png", "./icon-maskable.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))));
@@ -14,4 +14,11 @@ self.addEventListener("fetch", e => {
       return res;
     }).catch(() => caches.match(e.request).then(r => r || caches.match("./index.html")))
   );
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+    for (const c of list) { if ("focus" in c) return c.focus(); }
+    return self.clients.openWindow("./");
+  }));
 });
