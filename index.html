@@ -306,36 +306,34 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#000;transform:transl
 
 <script>
 /* ================= plan ================= */
+const PLAN_VER = 2;
 const DEFAULT_PLAN = {
   push:{name:"Push", ex:[
-    {id:"dips",n:"Dips",sets:3,lo:6,hi:12,type:"bw"},
     {id:"dbbench",n:"Dumbbell bench press",sets:4,lo:8,hi:12,type:"db"},
     {id:"ohp",n:"Overhead press",sets:3,lo:6,hi:10,type:"bb"},
+    {id:"dips",n:"Dips",sets:3,lo:6,hi:12,type:"bw"},
     {id:"lateral",n:"Lateral raises",sets:3,lo:12,hi:15,type:"db"},
-    {id:"triext",n:"Overhead triceps extension",sets:3,lo:10,hi:12,type:"db"},
-    {id:"pushups",n:"Push-ups",sets:1,max:true,type:"bw"}
+    {id:"triext",n:"Overhead triceps extension",sets:2,lo:10,hi:12,type:"db"}
   ]},
   pull:{name:"Pull", ex:[
     {id:"pullups",n:"Pull-ups",sets:4,max:true,type:"bw"},
     {id:"bbrow",n:"Barbell row",sets:4,lo:8,hi:10,type:"bb"},
-    {id:"dbrow",n:"One-arm dumbbell row",sets:3,lo:10,hi:12,type:"db"},
-    {id:"chinups",n:"Chin-ups",sets:2,max:true,type:"bw"},
-    {id:"bbcurl",n:"Barbell curl",sets:3,lo:8,hi:12,type:"bb"},
-    {id:"hammer",n:"Hammer curl",sets:2,lo:10,hi:12,type:"db"}
+    {id:"reardelt",n:"Rear-delt fly (bent over, dumbbells)",sets:3,lo:12,hi:15,type:"db"},
+    {id:"bbcurl",n:"Barbell curl",sets:3,lo:8,hi:12,type:"bb"}
   ]},
   legs:{name:"Legs", ex:[
-    {id:"rdl",n:"Romanian deadlift",sets:4,lo:8,hi:10,type:"bb"},
     {id:"bss",n:"Bulgarian split squat",sets:3,lo:8,hi:12,type:"db"},
-    {id:"goblet",n:"Goblet or front squat",sets:3,lo:10,hi:12,type:"db"},
+    {id:"rdl",n:"Romanian deadlift",sets:4,lo:8,hi:10,type:"bb"},
     {id:"sissy",n:"Sissy squat (hold doorframe)",sets:3,lo:8,hi:15,type:"bw"},
     {id:"slidecurl",n:"Sliding leg curl (socks on floor)",sets:3,lo:8,hi:12,type:"bw"},
-    {id:"calf",n:"Stair calf raises",sets:4,lo:15,hi:20,type:"bw"},
-    {id:"stairs",n:"Stair sprints or step-ups",sets:5,max:true,type:"bw",unit:"rounds"}
+    {id:"calf",n:"Stair calf raises",sets:4,lo:15,hi:20,type:"bw"}
   ]}
 };
 const ORDER = ["push","pull","legs"];
 const TABS = ["push","pull","legs","cardio"];
-const LEGACY = {legext:"Leg extension", legcurl:"Leg curl"};
+const LEGACY = {legext:{n:"Leg extension",type:"db"}, legcurl:{n:"Leg curl",type:"db"},
+  pushups:{n:"Push-ups",type:"bw"}, chinups:{n:"Chin-ups",type:"bw"}, dbrow:{n:"One-arm dumbbell row",type:"db"},
+  hammer:{n:"Hammer curl",type:"db"}, goblet:{n:"Goblet or front squat",type:"db"}, stairs:{n:"Stair sprints or step-ups",type:"bw"}};
 const ACTIVITIES = [["bike","Bike"],["stairs","Stairs"],["run","Run"],["walk","Walk"],["other","Other"]];
 const actName = k => (ACTIVITIES.find(a => a[0] === k) || [k, "Cardio"])[1];
 
@@ -343,11 +341,31 @@ const actName = k => (ACTIVITIES.find(a => a[0] === k) || [k, "Cardio"])[1];
 const KEY = "ppl-log-v2", OLDKEY = "ppl-log-v1";
 const clone = o => JSON.parse(JSON.stringify(o));
 function defSettings(){ return {rest:90, autoRest:true, theme:"auto", notif:false, sound:true, countdown:true, vibrate:true, wake:true, weekGoal:3, bar:10, plates:{"15":2,"10":2,"5":2,"2":0,"1":8}}; }
-function defaults(){ return {v:2, plan:clone(DEFAULT_PLAN), sessions:[], draft:{}, day:"push", next:"push", settings:defSettings()}; }
+function defaults(){ return {v:2, planV:PLAN_VER, retired:{}, plan:clone(DEFAULT_PLAN), sessions:[], draft:{}, day:"push", next:"push", settings:defSettings()}; }
+// Remember name/type of exercises that leave the plan so old logs keep showing them.
+function retire(d, oldPlan, newPlan){
+  const keep = new Set(); for(const k of ORDER) newPlan[k].ex.forEach(e => keep.add(e.id));
+  d.retired = d.retired || {};
+  for(const k of ORDER) ((oldPlan[k] || {}).ex || []).forEach(e => { if(!keep.has(e.id)) d.retired[e.id] = {n:e.n, type:e.type}; });
+}
+// Plan v2: overlap trim. Same ids stay; sets/reps follow the new default, names and types stay as saved.
+function migratePlan(d){
+  if((d.planV || 1) >= PLAN_VER) return;
+  const old = d.plan || {}, next = clone(DEFAULT_PLAN);
+  for(const k of ORDER){
+    const prev = ((old[k] || {}).ex || []);
+    if(old[k] && old[k].name) next[k].name = old[k].name;
+    next[k].ex.forEach(e => { const p = prev.find(x => x.id === e.id); if(p){ e.n = p.n || e.n; e.type = p.type || e.type; } });
+  }
+  retire(d, old, next);
+  d.plan = next; d.planV = PLAN_VER;
+  // drop untouched drafts so they rebuild with the new set counts
+  for(const k in (d.draft || {})){ const dr = d.draft[k]; if(dr && dr.ex) for(const id in dr.ex) if(!dr.ex[id].some(x => x.w || x.r || x.d)) delete dr.ex[id]; }
+}
 function load(){
   let s = null; try{ s = JSON.parse(localStorage.getItem(KEY)); }catch(e){}
   const d = defaults();
-  if(s && s.v === 2){ Object.assign(d, s); d.settings = Object.assign(defSettings(), s.settings || {}); if(!d.next) d.next = ORDER.includes(d.day) ? d.day : "push"; return d; }
+  if(s && s.v === 2){ Object.assign(d, s); d.planV = s.planV || 1; d.settings = Object.assign(defSettings(), s.settings || {}); if(!d.next) d.next = ORDER.includes(d.day) ? d.day : "push"; migratePlan(d); return d; }
   try{
     const o = JSON.parse(localStorage.getItem(OLDKEY));
     if(o && Array.isArray(o.sessions)){ d.sessions = o.sessions; d.day = d.next = o.day || "push"; d.settings.rest = o.rest || 90;
@@ -367,7 +385,7 @@ const e1rm = (w, r) => w * (1 + r / 30);
 const round1 = n => Math.round(n * 10) / 10;
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const dayName = k => k === "cardio" ? "Cardio" : (state.plan[k] ? state.plan[k].name : k);
-function exById(id){ for(const k of ORDER){ const e = state.plan[k].ex.find(x => x.id === id); if(e) return e; } return {id, n:LEGACY[id] || id, type:"db"}; }
+function exById(id){ for(const k of ORDER){ const e = state.plan[k].ex.find(x => x.id === id); if(e) return e; } const r = (state.retired || {})[id] || LEGACY[id]; return {id, n:r ? r.n : id, type:r ? r.type : "db"}; }
 const isBW = e => e.type === "bw";
 function dateKey(d){ d = new Date(d); return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate(); }
 function weekStart(d){ d = new Date(d); d.setHours(0,0,0,0); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return d; }
@@ -978,7 +996,7 @@ $("importFile").onchange = async ev => {
   try{
     const data = JSON.parse(await f.text()); if(!data || !Array.isArray(data.sessions)) throw 0;
     if(!confirm("Replace your data with this backup (" + data.sessions.length + " sessions)?")) return;
-    const d = defaults(); Object.assign(d, data); d.v = 2; d.settings = Object.assign(defSettings(), data.settings || {}); if(!data.plan) d.plan = clone(DEFAULT_PLAN);
+    const d = defaults(); Object.assign(d, data); d.v = 2; d.planV = data.planV || 1; d.settings = Object.assign(defSettings(), data.settings || {}); if(!data.plan){ d.plan = clone(DEFAULT_PLAN); d.planV = PLAN_VER; } migratePlan(d);
     state = d; save(); applyTheme(); render(); toast("Backup imported");
   }catch(e){ toast("That file isn't a PPL Log backup"); }
 };
@@ -1263,7 +1281,7 @@ $("sheetBody").addEventListener("click", ev => {
         ep[k].ex.forEach(e => { e.n = (e.n || "").trim() || "Exercise"; e.sets = Math.min(10, Math.max(1, e.sets || 3));
           if(!e.lo && !e.hi){ e.max = true; delete e.lo; delete e.hi; } else { e.max = false; e.lo = e.lo || e.hi; e.hi = Math.max(e.hi || e.lo, e.lo); } });
       }
-      state.plan = ep;
+      retire(state, state.plan, ep); state.plan = ep;
       for(const k of ORDER){ const d = state.draft[k]; if(d && !d.start) delete state.draft[k]; }
       save(); closeSheet(); render(); toast("Plan saved");
   }
