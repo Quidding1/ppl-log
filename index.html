@@ -254,6 +254,9 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#000;transform:transl
 .hacts .btn{height:36px;font-size:14px;flex:1}
 .tact{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit;margin-left:10px;padding:0}
 /* muscles, sides, skip */
+.runplan{display:flex;flex-direction:column;gap:2px;margin-bottom:12px;padding:12px 16px}
+.runplan b{font-weight:600}
+.runplan span{font-size:14px;color:var(--muted)}
 .exmeta .mus{display:block;width:100%;color:var(--ink);opacity:.85;font-size:13px}
 .exmeta .mus .also{color:var(--muted);opacity:1}
 .check2.half{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-size:12px;font-weight:700}
@@ -346,34 +349,39 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;background:#000;transform:transl
 
 <script>
 /* ================= plan ================= */
-const PLAN_VER = 2;
+const PLAN_VER = 3;
 const DEFAULT_PLAN = {
-  push:{name:"Push", ex:[
-    {id:"dbbench",n:"Dumbbell bench press",sets:4,lo:8,hi:12,type:"db"},
-    {id:"ohp",n:"Overhead press",sets:3,lo:6,hi:10,type:"bb"},
-    {id:"dips",n:"Dips",sets:3,lo:6,hi:12,type:"bw"},
+  push:{name:"Day A", ex:[
+    {id:"goblet",n:"Goblet squat",sets:3,lo:8,hi:12,type:"db"},
+    {id:"dbbench",n:"Dumbbell bench press",sets:3,lo:8,hi:12,type:"db"},
+    {id:"bbrow",n:"Barbell row",sets:3,lo:8,hi:10,type:"bb"},
+    {id:"rdl",n:"Romanian deadlift",sets:3,lo:8,hi:10,type:"bb"},
     {id:"lateral",n:"Lateral raises",sets:3,lo:12,hi:15,type:"db"},
-    {id:"triext",n:"Overhead triceps extension",sets:2,lo:10,hi:12,type:"db"}
+    {id:"reardelt",n:"Rear-delt fly",sets:2,lo:12,hi:15,type:"db"}
   ]},
-  pull:{name:"Pull", ex:[
-    {id:"pullups",n:"Pull-ups",sets:4,max:true,type:"bw"},
-    {id:"bbrow",n:"Barbell row",sets:4,lo:8,hi:10,type:"bb"},
-    {id:"reardelt",n:"Rear-delt fly (bent over, dumbbells)",sets:3,lo:12,hi:15,type:"db"},
-    {id:"bbcurl",n:"Barbell curl",sets:3,lo:8,hi:12,type:"bb"}
-  ]},
-  legs:{name:"Legs", ex:[
+  pull:{name:"Day B", ex:[
     {id:"bss",n:"Bulgarian split squat",sets:3,lo:8,hi:12,type:"db",side:true},
-    {id:"rdl",n:"Romanian deadlift",sets:4,lo:8,hi:10,type:"bb"},
-    {id:"sissy",n:"Sissy squat (hold doorframe)",sets:3,lo:8,hi:15,type:"bw"},
-    {id:"slidecurl",n:"Sliding leg curl (socks on floor)",sets:3,lo:8,hi:12,type:"bw"},
-    {id:"calf",n:"Stair calf raises",sets:4,lo:15,hi:20,type:"bw"}
+    {id:"ohp",n:"Overhead press",sets:3,lo:6,hi:10,type:"bb"},
+    {id:"pullups",n:"Pull-ups",sets:3,max:true,type:"bw"},
+    {id:"dips",n:"Dips",sets:3,lo:6,hi:12,type:"bw"},
+    {id:"bbcurl",n:"Barbell curl",sets:3,lo:8,hi:12,type:"bb"},
+    {id:"calf",n:"Calf raises (on a stair)",sets:3,lo:12,hi:20,type:"bw"}
+  ]},
+  legs:{name:"Day C", ex:[
+    {id:"deadlift",n:"Deadlift",sets:3,lo:5,hi:8,type:"bb"},
+    {id:"pushups",n:"Push-ups",sets:3,max:true,type:"bw"},
+    {id:"dbrow",n:"One-arm dumbbell row",sets:3,lo:8,hi:12,type:"db",side:true},
+    {id:"revlunge",n:"Reverse lunges",sets:3,lo:8,hi:12,type:"db",side:true},
+    {id:"triext",n:"Overhead triceps extension",sets:2,lo:10,hi:12,type:"db"},
+    {id:"legraise",n:"Hanging leg raises",sets:3,lo:8,hi:15,type:"bw"}
   ]}
 };
 const ORDER = ["push","pull","legs"];
 const TABS = ["push","pull","legs","cardio"];
 const LEGACY = {legext:{n:"Leg extension",type:"db"}, legcurl:{n:"Leg curl",type:"db"},
   pushups:{n:"Push-ups",type:"bw"}, chinups:{n:"Chin-ups",type:"bw"}, dbrow:{n:"One-arm dumbbell row",type:"db"},
-  hammer:{n:"Hammer curl",type:"db"}, goblet:{n:"Goblet or front squat",type:"db"}, stairs:{n:"Stair sprints or step-ups",type:"bw"}};
+  hammer:{n:"Hammer curl",type:"db"}, goblet:{n:"Goblet or front squat",type:"db"}, stairs:{n:"Stair sprints or step-ups",type:"bw"},
+  sissy:{n:"Sissy squat",type:"bw"}, slidecurl:{n:"Sliding leg curl",type:"bw"}};
 const MUSCLES = [["chest","Chest"],["fdelt","Front delts"],["sdelt","Side delts"],["rdelt","Rear delts"],["triceps","Triceps"],["biceps","Biceps"],["forearms","Forearms"],
   ["traps","Traps & upper back"],["lats","Lats"],["lowback","Lower back"],["abs","Abs"],["obliques","Obliques"],["glutes","Glutes"],["quads","Quads"],["hams","Hamstrings"],["calves","Calves"]];
 const MNAME = Object.fromEntries(MUSCLES);
@@ -386,7 +394,9 @@ const MUSCLE_MAP = {
   slidecurl:{p:["hams"],s:["glutes","calves"]}, calf:{p:["calves"],s:[]},
   pushups:{p:["chest","triceps"],s:["fdelt","abs"]}, chinups:{p:["lats","biceps"],s:["forearms"]}, dbrow:{p:["lats","traps"],s:["rdelt","biceps"]},
   hammer:{p:["biceps","forearms"],s:[]}, goblet:{p:["quads","glutes"],s:["abs"]}, stairs:{p:["quads","glutes"],s:["calves"]},
-  legext:{p:["quads"],s:[]}, legcurl:{p:["hams"],s:[]}
+  legext:{p:["quads"],s:[]}, legcurl:{p:["hams"],s:[]},
+  deadlift:{p:["hams","glutes","lowback"],s:["quads","traps","forearms"]}, revlunge:{p:["quads","glutes"],s:["hams"]},
+  legraise:{p:["abs"],s:["obliques","forearms"]}
 };
 const GUESS = [[/bench|push-?up|chest|fly(?!.*rear)/i,{p:["chest"],s:["fdelt","triceps"]}],[/overhead press|shoulder press|military|ohp/i,{p:["fdelt","sdelt"],s:["triceps"]}],
   [/lateral/i,{p:["sdelt"],s:[]}],[/rear/i,{p:["rdelt"],s:["traps"]}],[/tricep|skull|dip/i,{p:["triceps"],s:[]}],[/curl(?!.*leg)/i,{p:["biceps"],s:["forearms"]}],
@@ -420,17 +430,20 @@ function retire(d, oldPlan, newPlan){
 }
 // Plan v2: overlap trim. Same ids stay; sets/reps follow the new default, names and types stay as saved.
 function migratePlan(d){
-  if((d.planV || 1) >= PLAN_VER) return;
-  const old = d.plan || {}, next = clone(DEFAULT_PLAN);
-  for(const k of ORDER){
-    const prev = ((old[k] || {}).ex || []);
-    if(old[k] && old[k].name) next[k].name = old[k].name;
-    next[k].ex.forEach(e => { const p = prev.find(x => x.id === e.id); if(p){ e.n = p.n || e.n; e.type = p.type || e.type; } });
+  const v = d.planV || 1;
+  if(v >= PLAN_VER) return;
+  const old = d.plan || {};
+  let next = clone(DEFAULT_PLAN);
+  if(v < 2 || v === 2){
+    // v3: switch from push/pull/legs to three full-body days with better-known exercises.
+    // Exercise ids are kept where the movement stays, so history, bests and charts carry over.
+    for(const k of ORDER) next[k].ex.forEach(e => { for(const ok of ORDER){ const p = ((old[ok] || {}).ex || []).find(x => x.id === e.id); if(p && p.m) e.m = p.m; } });
   }
   retire(d, old, next);
   d.plan = next; d.planV = PLAN_VER;
-  // drop untouched drafts so they rebuild with the new set counts
-  for(const k in (d.draft || {})){ const dr = d.draft[k]; if(dr && dr.ex) for(const id in dr.ex) if(!dr.ex[id].some(x => x.w || x.r || x.d)) delete dr.ex[id]; }
+  // drop drafts without logged sets so they rebuild with the new exercises
+  for(const k in (d.draft || {})){ if(k === "cardio") continue; const dr = d.draft[k];
+    if(dr && dr.ex && !Object.values(dr.ex).some(sets => sets.some(x => x.d))) delete d.draft[k]; }
 }
 // Two-sided exercises: give every plan exercise an explicit side flag once (toggle can change it later).
 function sideMig(d){ for(const k of ORDER) ((d.plan[k] || {}).ex || []).forEach(e => { if(e.side === undefined) e.side = e.id === "bss" || guessSide(e); }); }
@@ -557,7 +570,7 @@ const skipped = (day, id) => { const d = state.draft[day]; return !!(d && d.skip
 const activeEx = day => state.plan[day].ex.filter(e => !skipped(day, e.id));
 function ensureStart(){ const d = draftFor(state.day); if(!d.start){ d.start = Date.now(); save(); wake(true); renderTop(); } }
 function cdraft(){
-  if(!state.draft.cardio) state.draft.cardio = {type:"bike", mode:"free", elapsed:0, runStart:null, manual:"", dist:"", level:"", effort:"", note:"", work:30, rest:60, rounds:8};
+  if(!state.draft.cardio) state.draft.cardio = {type:"run", mode:"free", elapsed:0, runStart:null, manual:"", dist:"", level:"", effort:"", note:"", work:30, rest:60, rounds:8};
   return state.draft.cardio;
 }
 const cElapsed = c => c.elapsed + (c.runStart ? Date.now() - c.runStart : 0);
@@ -597,6 +610,7 @@ function prevText(e, p){
 }
 function tipsHTML(){
   return `<div class="card tips stack" style="margin-bottom:14px"><h3>How it works</h3><ol>
+    <li>Your plan is 3 full-body days (A, B, C), so every muscle is trained about every 2 days. Run on the days in between with the Cardio tab.</li>
     <li>Pick a day at the top. The app opens on the next day in your rotation.</li>
     <li>Type the kg and reps you did. <b>Previous</b> shows last time; tap it to copy.</li>
     <li>Tap the circle when a set is done. A rest timer starts at the bottom.</li>
@@ -644,7 +658,7 @@ function renderLog(){
   const sk = plan.ex.filter(e => skipped(day, e.id));
   if(sk.length) h += `<p class="sklab">Skipped today</p>` + sk.map(e => `<div class="skrow" data-ex="${e.id}"><span>${esc(e.n)}</span><button class="ghost" data-act="unskip">Undo</button></div>`).join("");
   h += `<textarea data-k="note" rows="2" placeholder="Notes for this workout (optional)">${esc(d.note)}</textarea>
-    <button class="primary" data-act="finish">Finish ${esc(plan.name.toLowerCase())} workout</button></div>
+    <button class="primary" data-act="finish">Finish ${esc(plan.name)} workout</button></div>
     ${d.start ? '<p class="center"><button class="textlink" data-act="discard">Discard this workout</button></p>' : ""}`;
   $("main").innerHTML = h;
   slideSeg();
@@ -660,7 +674,8 @@ function intervalState(c){
 }
 function renderCardio(){
   const c = cdraft(), running = !!c.runStart, started = running || c.elapsed > 0;
-  let h = segHTML() + `<h1>Cardio</h1><p class="lede">${lastDoneText("cardio")}</p><div class="stack">
+  let h = segHTML() + `<h1>Cardio</h1><p class="lede">${lastDoneText("cardio")}</p>
+    <div class="card runplan"><b>Run days</b><span>Between lifting days, for example Tuesday, Thursday and a longer run on Saturday. Keep most runs easy: you should be able to talk. 20 to 40 minutes is plenty.</span></div><div class="stack">
     <div class="card"><span class="lab">What are you doing?</span><div class="chips">${ACTIVITIES.map(([k,l]) => `<button class="chip" data-act="ctype" data-val="${k}" aria-pressed="${c.type === k}">${l}</button>`).join("")}</div></div>
     <div class="card">
       <div class="seg two" role="tablist"><button role="tab" data-act="cmode" data-val="free" aria-selected="${c.mode === "free"}">Stopwatch</button><button role="tab" data-act="cmode" data-val="intervals" aria-selected="${c.mode === "intervals"}">Intervals</button></div>`;
@@ -1273,7 +1288,7 @@ function updateLive(){
     const plan = state.plan[state.day], d = draftFor(state.day), act = activeEx(state.day);
     let n = 0; act.forEach(e => n += (d.ex[e.id] || []).length);
     $("mdot").style.background = "var(--" + state.day + ")";
-    setTxt("mtitle", "Start " + dayName(state.day).toLowerCase() + " workout");
+    setTxt("mtitle", "Start " + dayName(state.day) + " workout");
     setTxt("msub", act.length + " exercises, " + n + " sets. First: " + (act[0] ? act[0].n : ""));
     setTxt("mtime", ""); $("mprog").style.width = "0%";
     btn.style.display = ""; setTxt("mbtn", "Start");
@@ -1330,7 +1345,7 @@ function renderFocus(){
     if(!cur){
       let total = 0; Object.values(d.ex).forEach(x => total += x.filter(s => s.d).length);
       h += `<div class="fname">All sets done</div><div class="flabel">${total} sets in ${fmtDur(Date.now() - d.start)}</div></div>
-        <div class="fbtns"><button class="go" data-f="finish">Finish ${esc(dayName(day).toLowerCase())} workout</button><button class="secondary" data-f="close">Back to list</button></div>`;
+        <div class="fbtns"><button class="go" data-f="finish">Finish ${esc(dayName(day))} workout</button><button class="secondary" data-f="close">Back to list</button></div>`;
     } else {
       fCur = {id:cur.e.id, i:cur.i};
       const s = d.ex[cur.e.id][cur.i], p = (lastFor(cur.e.id) || [])[cur.i], e = cur.e;
